@@ -1,0 +1,58 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@if (!IsAuthenticated)
+{
+    <div class="container">
+        <div class="content">
+            <h1>HeuroLogicV3</h1>
+            <p class="lead">Witamy w aplikacji wspomagającej podejmowanie decyzji metodą AHP!</p>
+            <div class="buttons">
+                <a href="/Identity/Account/Login" class="btn btn-primary btn-lg">Login</a>
+                <a href="/Identity/Account/Register" class="btn btn-secondary btn-lg">Register</a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container text-center mt-5">
+        <h1 class="display-4">HeuroLogicV3</h1>
+        <p class="lead">Zaawansowana aplikacja wspomagająca podejmowanie decyzji metodą AHP.</p>
+
+        <div class="info-box p-4 mt-4">
+            <p>
+                HeuroLogicV3 to aplikacja stworzona na potrzeby pracy magisterskiej, której celem jest
+                umożliwienie użytkownikom efektywnego podejmowania decyzji na podstawie metody
+                Analytic Hierarchy Process (AHP).
+            </p>
+            <p>
+                Dzięki zastosowaniu tej metody, użytkownicy mogą porównywać różne opcje,
+                uwzględniając różne kryteria i ich wagi, aby wybrać najlepszą możliwą decyzję.
+            </p>
+            <p>
+                Jeśli chcesz dowiedzieć się, jak korzystać z aplikacji, kliknij poniższy przycisk:
+            </p>
+
+            <button class="btn btn-primary mt-3" @onclick="NavigateToGuide">
+                📘 Przejdź do przewodnika użytkownika
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    private bool IsAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        IsAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+    }
+
+    private void NavigateToGuide()
+    {
+        NavigationManager.NavigateTo("/user-guide");
+    }
+}

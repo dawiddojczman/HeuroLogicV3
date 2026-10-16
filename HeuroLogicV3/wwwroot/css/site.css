@@ -1,0 +1,200 @@
+@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+
+:root {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #f5f7fb, #e4ecf7);
+    color: #1e293b;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+h1:focus {
+    outline: none;
+}
+
+a,
+.btn-link {
+    color: #1d4ed8;
+}
+
+.btn-primary {
+    background-color: #2563eb;
+    border-color: #2563eb;
+}
+
+    .btn-primary:hover {
+        background-color: #1d4ed8;
+        border-color: #1d4ed8;
+    }
+
+img,
+svg {
+    max-width: 100%;
+}
+
+.card {
+    min-width: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+}
+
+.table-responsive {
+    max-width: 100%;
+}
+
+.form-control,
+.form-select {
+    min-width: 0;
+}
+
+.input-group > .form-control {
+    min-width: 0;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #16a34a;
+}
+
+.invalid {
+    outline: 1px solid #dc2626;
+}
+
+.validation-message {
+    color: #dc2626;
+}
+
+/* Decision form */
+
+.make-decision-page {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0.5rem clamp(0.5rem, 1.5vw, 1.5rem);
+}
+
+    .make-decision-page h1 {
+        font-size: clamp(1.5rem, 2vw, 2rem);
+        font-weight: 650;
+    }
+
+    .make-decision-page .card {
+        padding: clamp(1rem, 2vw, 1.75rem) !important;
+    }
+
+    .make-decision-page .row > div {
+        min-width: 0;
+    }
+
+    .make-decision-page .table {
+        margin-bottom: 0;
+    }
+
+        .make-decision-page .table th,
+        .make-decision-page .table td {
+            vertical-align: middle;
+            overflow-wrap: anywhere;
+        }
+
+        .make-decision-page .table .form-select {
+            min-width: 155px;
+        }
+
+    .make-decision-page .list-group-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        overflow-wrap: anywhere;
+    }
+
+    .make-decision-page .alert {
+        overflow-wrap: anywhere;
+    }
+
+/* Blazor error UI */
+
+#blazor-error-ui {
+    background: #fff3cd;
+    bottom: 0;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.15);
+    display: none;
+    left: 0;
+    padding: 0.8rem 1.5rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+.blazor-error-boundary {
+    background: #991b1b;
+    padding: 1rem;
+    color: #ffffff;
+}
+
+    .blazor-error-boundary::after {
+        content: "An error has occurred.";
+    }
+
+/* Small screens */
+
+@media (max-width: 767.98px) {
+    .make-decision-page {
+        padding: 0.25rem 0;
+    }
+
+        .make-decision-page .card {
+            padding: 1rem !important;
+        }
+
+        .make-decision-page .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+            .make-decision-page .table-responsive > .table {
+                min-width: 590px;
+            }
+
+        .make-decision-page .row > div + div {
+            margin-top: 1.25rem;
+        }
+
+        .make-decision-page .input-group > .btn {
+            flex-shrink: 0;
+        }
+
+        .make-decision-page .btn-lg {
+            font-size: 0.95rem;
+            padding: 0.65rem 1rem;
+        }
+}
+
+@media (max-width: 430px) {
+    .make-decision-page .d-flex.flex-wrap.gap-2.mb-3 > .btn {
+        width: 100%;
+    }
+}

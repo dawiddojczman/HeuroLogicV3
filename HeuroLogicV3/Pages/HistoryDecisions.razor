@@ -1,0 +1,271 @@
+﻿@page "/history-decisions"
+@attribute [Authorize]
+
+@using System.Security.Claims
+@using HeuroLogicV3.Database.Contexts
+@using HeuroLogicV3.Database.Models
+@using Microsoft.EntityFrameworkCore
+
+@inject IDbContextFactory<AppDbContext> DbFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Decision history - HeuroLogicV3</PageTitle>
+
+<h1 class="text-center mt-4">
+    Your decision history
+</h1>
+
+@if (!string.IsNullOrWhiteSpace(ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @ErrorMessage
+    </div>
+}
+
+@if (Decisions is null)
+{
+    <p class="text-center">
+        Loading...
+    </p>
+}
+else if (Decisions.Count == 0)
+{
+    <p class="text-center text-muted mt-4">
+        No decisions found.
+    </p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>
+                        <button class="btn btn-link text-light"
+                                @onclick="SortByTitle">
+                            Title
+                        </button>
+                    </th>
+                    <th>
+                        <button class="btn btn-link text-light"
+                                @onclick="SortByDate">
+                            Created at
+                        </button>
+                    </th>
+                    <th>Best alternative</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var decision in Decisions)
+                {
+                    <tr @key="decision.Id">
+                        <td>
+                            <strong>@decision.Title</strong>
+                        </td>
+                        <td>
+                            @decision.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                        </td>
+                        <td>
+                            @GetBestOption(decision)
+                        </td>
+                        <td>
+                            <button class="btn btn-info btn-sm" @onclick="() => ToggleDetails(decision.Id)">
+                                @(ExpandedDecisionId == decision.Id ? "Hide details" : "Show details")
+                            </button>
+                            <button class="btn btn-danger btn-sm ms-2"
+                                    @onclick="() => ConfirmDelete(decision.Id)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    @if (ExpandedDecisionId == decision.Id)
+                    {
+                        <tr>
+                            <td colspan="4">
+                                <div class="p-3 border rounded bg-light">
+                                    <p>
+                                        <strong>Algorithm:</strong>
+                                        @(decision.AlgorithmVersion ?? "Legacy version")
+                                    </p>
+                                    <p>
+                                        <strong>Criteria CR:</strong>
+                                        @(decision.CriteriaConsistencyRatio?.ToString("F4") ?? "N/A")
+                                    </p>
+                                    <h2 class="h5">
+                                        Criteria priorities
+                                    </h2>
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Criterion</th>
+                                                <th>Weight</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var criterion in decision.Criterias)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @criterion.Name
+                                                    </td>
+                                                    <td>
+                                                        @(criterion.Weight > 0 ? criterion.Weight.ToString("P2") : "N/A (legacy)")
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                    <h2 class="h5">
+                                        Ranked alternatives
+                                    </h2>
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Score</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var option in decision.Options.OrderByDescending(o => o.FinalScore))
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @option.Name
+                                                    </td>
+                                                    <td>
+                                                        @(option.FinalScore?.ToString("P2") ?? "N/A")
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                    @if (!string.IsNullOrEmpty(decision.InputSnapshotJson))
+                                    {
+                                        <details>
+                                            <summary>
+                                                Original comparison matrices (JSON)
+                                            </summary>
+                                            <pre class="mt-2" style="white-space: pre-wrap; overflow-wrap: anywhere">@decision.InputSnapshotJson</pre>
+                                        </details>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<Decision>? Decisions;
+    private Guid? ExpandedDecisionId;
+    private string? ErrorMessage;
+    private string? _userId;
+    private bool _titleAscending = true;
+    private bool _dateAscending = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authentication = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        _userId = authentication.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrWhiteSpace(_userId))
+        {
+            Decisions = new();
+            ErrorMessage = "You must be signed in to access your decisions.";
+            return;
+        }
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        Decisions = await db.Decisions
+            .AsNoTracking()
+            .Where(d => d.UserId == _userId)
+            .Include(d => d.Criterias)
+            .Include(d => d.Options)
+            .OrderByDescending(d => d.CreatedAt)
+            .ToListAsync();
+    }
+
+    private void SortByTitle()
+    {
+        if (Decisions is null)
+            return;
+
+        Decisions = (_titleAscending
+            ? Decisions.OrderBy(d => d.Title)
+            : Decisions.OrderByDescending(d => d.Title))
+            .ToList();
+
+        _titleAscending = !_titleAscending;
+    }
+
+    private void SortByDate()
+    {
+        if (Decisions is null)
+            return;
+
+        Decisions = (_dateAscending
+            ? Decisions.OrderBy(d => d.CreatedAt)
+            : Decisions.OrderByDescending(d => d.CreatedAt))
+            .ToList();
+
+        _dateAscending = !_dateAscending;
+    }
+
+    private static string GetBestOption(Decision decision)
+    {
+        var best = decision.Options
+            .OrderByDescending(o => o.FinalScore)
+            .FirstOrDefault();
+
+        return best is null ? "N/A" : $"{best.Name} ({best.FinalScore:P2})";
+    }
+
+    private void ToggleDetails(Guid decisionId)
+    {
+        ExpandedDecisionId = ExpandedDecisionId == decisionId ? null : decisionId;
+    }
+
+    private async Task ConfirmDelete(Guid decisionId)
+    {
+        if (string.IsNullOrWhiteSpace(_userId))
+            return;
+
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Delete this decision?");
+
+        if (!confirmed)
+            return;
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        var decision = await db.Decisions
+            .FirstOrDefaultAsync(d =>
+                d.Id == decisionId &&
+                d.UserId == _userId);
+
+        if (decision is null)
+        {
+            ErrorMessage = "Decision not found or access denied.";
+            return;
+        }
+
+        db.Decisions.Remove(decision);
+
+        await db.SaveChangesAsync();
+
+        Decisions?.RemoveAll(d => d.Id == decisionId);
+
+        if (ExpandedDecisionId == decisionId)
+        {
+            ExpandedDecisionId = null;
+        }
+
+        ErrorMessage = null;
+    }
+}

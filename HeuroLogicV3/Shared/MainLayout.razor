@@ -1,0 +1,91 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@inherits LayoutComponentBase
+@implements IDisposable
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<div class="app-layout">
+    @if (IsAuthenticated)
+    {
+        <aside class="app-sidebar">
+            <NavMenu />
+        </aside>
+    }
+    <div class="app-main">
+        <header class="app-header">
+            <div class="page-title">
+                @CurrentPage
+            </div>
+            @if (IsAuthenticated)
+            {
+                <div class="account-actions">
+                    <span class="account-name"
+                          title="@UserName">
+                        @UserName
+                    </span>
+                    <a class="logout-link"
+                       href="/Identity/Account/Logout?returnUrl=/">
+                        Logout
+                    </a>
+                </div>
+            }
+        </header>
+        <main class="app-content">
+            @Body
+        </main>
+        <footer class="app-footer">
+            &copy; @DateTime.Now.Year HeuroLogicV3
+            <span>·</span>
+            Dawid Dojczman
+        </footer>
+    </div>
+</div>
+
+@code {
+    private bool IsAuthenticated;
+    private string UserName = string.Empty;
+    private string CurrentPage = "Home";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        IsAuthenticated = user.Identity?.IsAuthenticated ?? false;
+        UserName = IsAuthenticated ? user.Identity?.Name ?? "User" : string.Empty;
+        UpdateCurrentPage();
+        NavigationManager.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateCurrentPage();
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateCurrentPage()
+    {
+        var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+
+        var pageName = relativePath
+            .Split('?', '#')[0]
+            .Trim('/');
+
+        if (string.IsNullOrWhiteSpace(pageName))
+        {
+            CurrentPage = "Home";
+            return;
+        }
+
+        pageName = pageName
+            .Replace("-", " ")
+            .Replace("/", " / ");
+
+        CurrentPage = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(pageName);
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+}

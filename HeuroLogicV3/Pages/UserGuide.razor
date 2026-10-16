@@ -1,0 +1,45 @@
+﻿@page "/user-guide"
+@inject NavigationManager NavigationManager
+
+<div class="container">
+    <div class="card shadow-lg p-4 mt-4">
+        <h1 class="text-center">📘 Przewodnik użytkownika</h1>
+        <p class="text-center text-muted">Dowiedz się, jak skutecznie korzystać z HeuroLogicV3</p>
+
+        <h4 class="mt-4">🔹 O aplikacji</h4>
+        <p>
+            HeuroLogicV3 to aplikacja wspomagająca podejmowanie decyzji za pomocą
+            metody <b>Analytic Hierarchy Process (AHP)</b>. Dzięki niej możesz porównywać
+            różne opcje względem wybranych kryteriów i znaleźć najlepszą decyzję.
+        </p>
+
+        <h4 class="mt-4">🛠 Jak korzystać?</h4>
+        <ol class="list-group list-group-numbered">
+            <li class="list-group-item"><b>Przejdź do sekcji "Make Decision".</b></li>
+            <li class="list-group-item"><b>Wprowadź tytuł decyzji.</b></li>
+            <li class="list-group-item"><b>Dodaj kryteria.</b> To są aspekty, które ocenisz (np. koszt, jakość, wydajność).</li>
+            <li class="list-group-item"><b>Dodaj opcje.</b> Są to alternatywy, spośród których wybierasz najlepszą (np. różne modele laptopów).</li>
+            <li class="list-group-item"><b>Przypisz oceny do każdej opcji.</b> Skala od 1 do 9, gdzie 1 oznacza słabą zgodność, a 9 - idealną.</li>
+            <li class="list-group-item"><b>Kliknij "Make Decision".</b> Algorytm AHP obliczy najlepszą opcję.</li>
+            <li class="list-group-item"><b>Zapisz decyzję.</b> Możesz przechowywać decyzje w sekcji "History Decisions".</li>
+        </ol>
+
+        <h4 class="mt-4">⚖ Jak działają wagi?</h4>
+        <p>
+            Każde kryterium ma swoją wagę określającą jego znaczenie. Wyższa waga oznacza
+            większą istotność. AHP przekształca te wartości w macierz porównań, na podstawie
+            której obliczana jest najlepsza opcja.
+        </p>
+
+        <div class="text-center mt-4">
+            <button class="btn btn-primary btn-lg" @onclick="NavigateToDecision">➡ Podejmij decyzję!</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private void NavigateToDecision()
+    {
+        NavigationManager.NavigateTo("/make-decision");
+    }
+}

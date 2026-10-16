@@ -1,0 +1,104 @@
+.nav-menu {
+    width: 100%;
+    color: #ffffff;
+}
+
+.nav-brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.nav-brand {
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+    .nav-brand:hover {
+        color: #ffffff;
+    }
+
+.nav-toggle {
+    display: none;
+    flex: 0 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: transparent;
+    color: #ffffff;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+}
+
+    .nav-toggle:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+.nav-links {
+    padding: 1rem 0.7rem;
+}
+
+    .nav-links nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+.nav-menu ::deep a.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.7rem 0.9rem;
+    color: #dbeafe;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    transition: background-color 0.15s ease;
+}
+
+    .nav-menu ::deep a.nav-link .oi {
+        display: inline-block;
+        width: 1.35rem;
+        flex: 0 0 1.35rem;
+        text-align: center;
+        font-size: 1rem;
+    }
+
+    .nav-menu ::deep a.nav-link:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+    }
+
+    .nav-menu ::deep a.nav-link.active {
+        background: rgba(255, 255, 255, 0.20);
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+@media (max-width: 767.98px) {
+    .nav-brand-row {
+        padding: 0.75rem 1rem;
+    }
+
+    .nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-links {
+        padding: 0.5rem 0.75rem 0.85rem;
+    }
+
+        .nav-links.is-collapsed {
+            display: none;
+        }
+}
